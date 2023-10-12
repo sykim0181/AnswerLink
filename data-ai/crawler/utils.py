@@ -10,6 +10,6 @@ def get_driver():
     option.add_argument('--window-size=1920,1080')
     option.add_argument('--disable-gpu')
     option.add_argument('--headless')
-    option.add_experimental_option( "prefs", { "download.default_directory": '/Users/peter/AnswerLink/AnswerLink/crawler' })
+    option.add_experimental_option( "prefs", { "download.default_directory": os.getcwd()})
     driver = webdriver.Chrome(service=service, options=option)
     return driver
