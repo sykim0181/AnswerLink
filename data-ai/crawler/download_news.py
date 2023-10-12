@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import UnexpectedAlertPresentException
 import json
 from time import sleep
 
@@ -66,7 +67,12 @@ def get_news():
        EC.presence_of_element_located((By.XPATH, '//*[@id="analytics-data-download"]/div[3]/button'))
     )
     
-    driver.execute_script("arguments[0].click();", download_button)   
+    driver.execute_script("arguments[0].click();", download_button)
+    time.sleep(1)
+    
+    if EC.alert_is_present():
+        result = driver.switch_to.alert
+        result.accept()
     
     element = WebDriverWait(driver, 300).until(
        EC.presence_of_element_located((By.CSS_SELECTOR, '#analytics-data-download > div.data-down-scroll > div > div > div.news-loader.loading'))
