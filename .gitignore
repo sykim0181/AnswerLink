@@ -1,3 +1,4 @@
 # MISC
 security.*
 .DS_*
+.vscode
