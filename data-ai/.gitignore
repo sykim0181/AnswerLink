@@ -162,6 +162,7 @@ cython_debug/
 # Download data from crawler
 *.json
 *.xlsx
+*.pkl
 
 # Apple file
 .DS_Store
