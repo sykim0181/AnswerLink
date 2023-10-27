@@ -5,6 +5,8 @@ import json
 
 import bareunpy as brn
 
+from retriever.retriever import *
+
 with open('security.json', 'r') as f:
     security = json.load(f)
     
@@ -61,7 +63,7 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
                         ]
            ]
 
-    contexts = "retrieved context"
+    contexts = retrieve(query)
     answers = "generated answer"
     
     return {
