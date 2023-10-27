@@ -6,6 +6,7 @@ import json
 import bareunpy as brn
 
 from retriever.retriever import *
+from generator.generator import *
 
 with open('security.json', 'r') as f:
     security = json.load(f)
@@ -25,8 +26,7 @@ def check_auth(serviceKey:str | None = None, Authorization: Annotated[str | None
     
     if serviceKey == None:
         serviceKey = Authorization
-        
-    if serviceKey in security['service-key']:
+    if serviceKey not in security['service-key']:
         raise HTTPException(status_code=404, detail='invalid serviceKey')
 
 
@@ -49,7 +49,7 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
     check_auth(serviceKey, Authorization)
     
     # get response from bareu api
-    res = tagger.tag([query])
+    res = tagger.tag(query)
     # remove unnecessary pos
     pos = [i[0] for i in res.pos()
             if i[1] in ['SL', 'SH', 'SN',  
@@ -64,7 +64,7 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
            ]
 
     contexts = retrieve(query)
-    answers = "generated answer"
+    answers = generate_openai(query, contexts)
     
     return {
         "query": query,
