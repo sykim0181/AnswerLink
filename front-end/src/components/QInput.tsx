@@ -48,13 +48,23 @@ const QInput = () => {
         type: "Q",
         text: input,
       });
+
       await axios.get(`/api/chat?prompt=${input}`).then((res) => {
         addMessage({
           type: "A",
           text: res.data,
         });
       });
+      /*
+      //테스트(백엔드X)
+      addMessage({
+        type: "A",
+        text: `Your question is "${input}"`
+      });
+      */
     }
+
+    setInput("");
   };
 
   return (

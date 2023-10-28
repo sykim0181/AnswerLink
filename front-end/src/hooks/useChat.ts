@@ -14,21 +14,11 @@ export const useChat = () => {
         window.sessionStorage.setItem(id, JSON.stringify(msg));
   }, []);
 
-  const deleteRecentMessage = useRecoilCallback(
-    ({ snapshot, set }) => 
-      () => {
-        const prevMessageIds = snapshot.getLoadable(messageIdsState).getValue();
-        const lastMsgId = prevMessageIds[prevMessageIds.length-1];
-        set(messageIdsState, prevMessageIds.slice(prevMessageIds.length-1));
-        //session storage에서 삭제
-        window.sessionStorage.removeItem(lastMsgId.toString());
-  }, []);
-
   const deleteMessage = useRecoilCallback(
     ({ snapshot, set }) => 
       (id: string) => {
         const prevMessageIds = snapshot.getLoadable(messageIdsState).getValue();
-        set(messageIdsState, prevMessageIds.filter(val => val!==id));
+        set(messageIdsState, prevMessageIds.filter(val => val!==id)); //삭제
         //session storage에서 삭제
         window.sessionStorage.removeItem(id);
     
@@ -37,7 +27,6 @@ export const useChat = () => {
 
   return {
     addMessage,
-    deleteRecentMessage,
     deleteMessage
   }
 }

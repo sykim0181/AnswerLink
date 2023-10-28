@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilCallback } from 'recoil';
+import axios from "axios";
 import { AiOutlineReload } from 'react-icons/ai';
 import { FaRegCopy } from 'react-icons/fa';
 import { Message, messageIdsState } from '../atoms/chatAtoms';
@@ -49,17 +50,28 @@ const MessageContainer = ({ id, isLast }: MessageContainerProps) => {
   const reload = async () => {
     alert("reload");
 
-    //마지막 답 객체 삭제
-    const lastId = chatIdList[chatIdList.length-1];
-    deleteMessage(lastId);
+    const lastQuestionItem = window.sessionStorage.getItem(chatIdList[chatIdList.length-2]);
+    if (lastQuestionItem){
+      const lastQuestion = JSON.parse(lastQuestionItem).text;
 
-    //마지막 질문을 다시 넘겨서 답을 받아옴
-    //const response = await axios.post('/api/chat', input);
-    const sample_response = `새로운 답`;
-    addMessage({
-      type: "A",
-      text: sample_response
-    });
+      deleteMessage(chatIdList[chatIdList.length-1]);//마지막 답 객체 삭제
+      //마지막 질문을 다시 넘겨서 답을 받아옴
+      await axios.post('/api/chat', window.sessionStorage.getItem(lastQuestion))
+        .then((res) => 
+          addMessage({
+            type: "A",
+            text: res.data
+          })
+        );
+      /*
+      //테스트(벡엔드X)
+      addMessage({
+        type: "A",
+        text: `This is the new answer for your question "${lastQuestion}"`
+      });
+      */
+    }
+    
   }
 
   const copyText = async (text: string) => {
