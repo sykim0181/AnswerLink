@@ -1,29 +1,47 @@
 package com.example.test.dto;
 
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Retry.Topic;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+@Data
+@Getter
+@Setter
 public class TopicList {
 	
-	private String topic_text;
-	private String topic_sn;
-	private String topic_count;
+	@JsonProperty("topic_text")
+	private String topicText;
+	@JsonProperty("topic_sn")
+	private String topicSn;
+	@JsonProperty("topic_count")
+	private String topicCount;
+
+	public TopicList(){
+
+	}
 	
-	public String getTopic_text() {
-		return topic_text;
-	}
-	public void setTopic_text(String topic_text) {
-		this.topic_text = topic_text;
-	}
-	public String getTopic_sn() {
-		return topic_sn;
-	}
-	public void setTopic_sn(String topic_sn) {
-		this.topic_sn = topic_sn;
-	}
-	public String getTopic_count() {
-		return topic_count;
-	}
-	public void setTopic_count(String topic_count) {
-		this.topic_count = topic_count;
-	}
+	// public String getTopicText() {
+	// 	return topicText;
+	// }
+	// public void setTopicText(String topicText) {
+	// 	this.topicText = topicText;
+	// }
+	// public String getTopicSn() {
+	// 	return topicSn;
+	// }
+	// public void setTopicSn(String topicSn) {
+	// 	this.topicSn = topicSn;
+	// }
+	// public String getTopicCount() {
+	// 	return topicCount;
+	// }
+	// public void setTopicCount(String topicCount) {
+	// 	this.topicCount = topicCount;
+	// }
 	
 	
 	

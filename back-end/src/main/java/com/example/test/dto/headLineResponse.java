@@ -2,51 +2,81 @@ package com.example.test.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class headLineResponse {
 	
+	@JsonProperty("date")
 	private String date;
-	private String topic_year;
-	private String topic_day;
-	private String topic_sort;
-	private List<TopicList> topic_list;
-	private String topic_category;
+
+	@JsonProperty("topic_year")
+	private String topicYear;
+	@JsonProperty("topic_day")
+	private String topicDay;
+	@JsonProperty("topic_sort")
+	private String topicSort;
 	
-	public String getDate() {
-		return date;
-	}
-	public void setDate(String date) {
-		this.date = date;
-	}
-	public String getTopic_year() {
-		return topic_year;
-	}
-	public void setTopic_year(String topic_year) {
-		this.topic_year = topic_year;
-	}
-	public String getTopic_day() {
-		return topic_day;
-	}
-	public void setTopic_day(String topic_day) {
-		this.topic_day = topic_day;
-	}
-	public String getTopic_sort() {
-		return topic_sort;
-	}
-	public void setTopic_sort(String topic_sort) {
-		this.topic_sort = topic_sort;
-	}
-	public List<TopicList> getTopic_list() {
-		return topic_list;
-	}
-	public void setTopic_list(List<TopicList> topic_list) {
-		this.topic_list = topic_list;
-	}
-	public String getTopic_category() {
-		return topic_category;
-	}
-	public void setTopic_category(String topic_category) {
-		this.topic_category = topic_category;
-	}
+	@JsonProperty("topic_list")
+	private List<TopicList> topicList;
+
+
+	@JsonProperty("topic_category")
+	private String topicCategory;
+	
+	// @JsonProperty("topic_category")
+	// private String topicCategory;
+
+	// public headLineResponse(){
+
+	// }
+	
+	// public String getDate() {
+	// 	return date;
+	// }
+	// public void setDate(String date) {
+	// 	this.date = date;
+	// }
+	// public String getTopicYear() {
+	// 	return topicYear;
+	// }
+	// public void setTopicYear(String topicYear) {
+	// 	this.topicYear = topicYear;
+	// }
+	// public String getTopicDay() {
+	// 	return topicDay;
+	// }
+	// public void setTopicDay(String topicDay) {
+	// 	this.topicDay = topicDay;
+	// }
+	// public String getTopicSort() {
+	// 	return topicSort;
+	// }
+	// public void setTopicSort(String topicSort) {
+	// 	this.topicSort = topicSort;
+	// }
+	// public List<TopicList> getTopicList() {
+	// 	return topicList;
+	// }
+	// public void setTopicList(List<TopicList> topicList) {
+	// 	this.topicList = topicList;
+	// }
+	// public String getTopicCategory() {
+	// 	return topicCategory;
+	// }
+	// public void setTopicCategory(String topicCategory) {
+	// 	this.topicCategory = topicCategory;
+	// }
 	
 	
 }

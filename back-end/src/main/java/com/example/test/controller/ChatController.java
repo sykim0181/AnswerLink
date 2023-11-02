@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.test.config.ServiceKeyConfig;
 import com.example.test.dto.ChatRequest;
 import com.example.test.dto.ChatResponse;
 import com.example.test.service.QuestionAnswerService;
@@ -25,12 +26,23 @@ public class ChatController {
 	@Autowired
 	private QuestionAnswerService qaService;
 
+	// public ChatController(){
+
+	// }
+
+	
+	// public ChatController(QuestionAnswerService service){
+	// 	qaService = service;
+	// }
+
+
 	private String authorization;
 
 	@GetMapping("/chat")
 	public String chat(@RequestParam String prompt) {
 
 		//create request
+		//qaService = new QuestionAnswerService(servicekey);
 		qaService = new QuestionAnswerService();
 		ChatResponse response = qaService.getAnswer(prompt);
 		String answer = response.getAnswers();
