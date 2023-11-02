@@ -2,9 +2,11 @@ import React, { useRef, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useRecoilValue } from 'recoil';
 // import { BrowserView, MobileView } from 'react-device-detect';
+import { CiSettings } from 'react-icons/ci';
 import QnAContainer from './components/QnAContainer';
 import HeadlineContainer from './components/HeadlineContainer';
 import { messageIdListState } from './atoms/chatAtoms';
+import SettingModal from './components/SettingModal';
 
 const Inner = styled.div`
   width: 80%; //1200px;
@@ -18,6 +20,7 @@ const Inner = styled.div`
 const Header = styled.div`
   width: 80%; //1200px;
   display: flex;
+  align-items: center;
   position: fixed;
   top: .5rem;
   z-index: 3;
@@ -80,10 +83,18 @@ const QnAContainerContainer = styled.div`
   }
 `;
 
+const ModalContainer = styled.div<{ isShown: boolean }>`
+  display: ${({ isShown }) => isShown ? "block" : "none"};
+  position: fixed;
+  top: 0;
+  z-index: 5;
+`;
+
 const Home = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [hasMessage, setHasMessage] = useState(false);
-  const messageIdList = useRecoilValue(messageIdListState);  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const messageIdList = useRecoilValue(messageIdListState); 
 
   const headerRef = useRef<HTMLDivElement>(null);
   const QnAContainerContainerRef = useRef<HTMLDivElement>(null);
@@ -111,6 +122,12 @@ const Home = () => {
       
       <Header ref={headerRef}>
         <HeadlineContainer />
+        <div 
+          style={{ fontSize: "2rem", margin: "1rem", cursor: "pointer" }}
+          onClick={() => setIsModalOpen(true)}
+        >
+          <CiSettings />
+        </div>
       </Header>
 
       <LogoContainer 
@@ -128,6 +145,9 @@ const Home = () => {
         <QnAContainer pdTop={headerHeight} />
       </QnAContainerContainer>
                 
+      <ModalContainer isShown={isModalOpen}>
+        <SettingModal onClose={() => setIsModalOpen(false)} />
+      </ModalContainer>
     </Inner> 
   );
 }
