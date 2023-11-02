@@ -1,11 +1,12 @@
 import React, { useRef } from 'react';
 import styled from '@emotion/styled';
-import { useRecoilCallback, useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
 import axios from 'axios';
 import { messageIdListState, messageItemState } from '../atoms/chatAtoms';
 import MessageContainer from './MessageContainer';
 import QInput from './QInput';
 import { useChat } from '../hooks/useChat';
+import { serverAtom } from '../atoms/serverAtom';
 
 const Base = styled.div`
   width: 100%;
@@ -35,6 +36,7 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
   const messageIdList = useRecoilValue(messageIdListState);  
   const chatRef = useRef<HTMLDivElement>(null);
   const { addMessage, updateMessage } = useChat();
+  const [server, setServer] = useRecoilState(serverAtom); 
 
 
   const onQInputHeightChange = (height: number) => {
@@ -48,11 +50,12 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
 
     const aid = addMessage(false);
 
-    await axios.get(`/api/chat?prompt=${question}`)
+    await axios.get(`${server}/api/chat?prompt=${question}`)
       .then((res) => {
         updateMessage(aid, res.data);
       });
     //테스트(백엔드X)
+    // const dummy_answer = "";
     // setTimeout(() => {
     //   updateMessage(aid, `Your question is "${question}".`);
     // }, 2000);
@@ -74,7 +77,7 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
         const qid = messageIdList[qIdx];
         const question = snapshot.getLoadable(messageItemState(qid)).getValue();
         
-        await axios.get(`/api/chat?prompt=${question.text}`)
+        await axios.get(`${server}/api/chat?prompt=${question.text}`)
           .then((res) => {
             updateMessage(id, res.data);
           });
