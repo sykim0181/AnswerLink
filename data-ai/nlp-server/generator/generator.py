@@ -35,5 +35,22 @@ def generate_openai(query: str, contexts: List[Document]):
         )
     
     message = response.choices[0].message.content
+    
+    odqa_prompt = "당신은 질의응답 시스템 AIKU입니다. "\
+                  "다음의 사용자 질의에 대한 답변을 생성하십시오. "\
+                  "당신의 답변은 당신의 말로 이루어져야 하며 50 단어(100 tokens)를 넘지 않아야 합니다.\n\n"\
+                  "질문: "
+    # if messgae contain "문맥에서 필요한 정보를 찾을 수 없습니다."
+    if "정보를 찾을 수 없습니다" in message:
+        print(message)
+        response = openai.ChatCompletion.create(
+            model = 'gpt-4',
+            messages = [
+                {'role': 'system', 'content': odqa_prompt + query}
+            ],
+            temperature = 0,
+            max_tokens = 250,
+        )
+        message = response.choices[0].message.content
 
     return message
