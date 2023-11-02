@@ -1,21 +1,22 @@
 import { atom, atomFamily } from "recoil";
 
 export type Message = {
-  type: "Q" | "A";
-  text: string;
+  id: string;
+  type?: "Q" | "A";
+  text?: string;
+  isLoading?: boolean;
 }
 
 export const messageItemState = atomFamily<Message, string>({
   key: 'messageItemState',
   default: (id) => {
-    const data = window.sessionStorage.getItem(id);
-    if (data) {
-      return JSON.parse(data);
+    return {
+      id: id
     }
   }
 });
 
-export const messageIdsState = atom<string[]>({
-  key: 'messageIdsState',
+export const messageIdListState = atom<string[]>({
+  key: 'messageListState',
   default: []
 });

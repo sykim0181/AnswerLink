@@ -1,32 +1,48 @@
 import { useRecoilCallback } from 'recoil';
 import { v1 as uuid } from 'uuid';
-import { Message, messageIdsState } from '../atoms/chatAtoms';
+import { Message, messageItemState, messageIdListState } from '../atoms/chatAtoms';
 
 export const useChat = () => {
 
   const addMessage = useRecoilCallback(
     ({ snapshot, set }) => 
-      (msg: Message) => {
-        const prevMessageIds = snapshot.getLoadable(messageIdsState).getValue();
+      (isQuestion: boolean, text?: string) => {
+        const prevMessages = snapshot.getLoadable(messageIdListState).getValue();
         const id = uuid();
-        set(messageIdsState, [...prevMessageIds, id]);
-        //session storage에 저장
-        window.sessionStorage.setItem(id, JSON.stringify(msg));
+        const item: Message = {
+          id: id,
+          type: isQuestion ? "Q" : "A",
+          text: text, //question이면 text가 무조건 있고, answer면 없을 수 있음
+          isLoading: isQuestion ? false : true
+        }
+        set(messageItemState(id), item);
+
+        set(messageIdListState, [...prevMessages, id]);
+        return id;     
   }, []);
 
-  const deleteMessage = useRecoilCallback(
-    ({ snapshot, set }) => 
-      (id: string) => {
-        const prevMessageIds = snapshot.getLoadable(messageIdsState).getValue();
-        set(messageIdsState, prevMessageIds.filter(val => val!==id)); //삭제
-        //session storage에서 삭제
-        window.sessionStorage.removeItem(id);
-    
-  }, []);
+  const updateMessage = useRecoilCallback(
+    ({ snapshot, set }) =>  
+      (id: string, text: string) => {
+        const prevMessage = snapshot.getLoadable(messageItemState(id)).getValue();
+        const newItem = {
+          ...prevMessage,
+          text: text,
+          isLoading: false
+        }
+        set(messageItemState(id), newItem);
+  });
 
+  // const deleteMessage = useRecoilCallback(
+  //   ({ snapshot, set, reset }) => 
+  //     (id: string) => {
+  //       const prevMessageIds = snapshot.getLoadable(messageIdListState).getValue();
+  //       set(messageIdListState, prevMessageIds.filter(val => val !== id)); //삭제
+  //       reset(messageItemState(id));    
+  // }, []);
 
   return {
     addMessage,
-    deleteMessage
+    updateMessage,
   }
 }

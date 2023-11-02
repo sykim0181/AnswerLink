@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
-import { useRecoilValue, useRecoilCallback } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import axios from "axios";
+import { ThreeDots } from 'react-loader-spinner';
 import { AiOutlineReload } from 'react-icons/ai';
 import { FaRegCopy } from 'react-icons/fa';
-import { Message, messageIdsState } from '../atoms/chatAtoms';
-import { useChat } from '../hooks/useChat';
+import { messageItemState } from '../atoms/chatAtoms';
 import TextBox from './TextBox';
 
 const Base = styled.div<{ isQuery: boolean }>`
@@ -26,53 +26,17 @@ const ButtonsContainer = styled.div`
   display: flex;
   position: relative;
   margin-left: auto;
+  margin-top: .5rem;
 `;
 
 interface MessageContainerProps {
   id: string;
   isLast?: boolean;
+  onReload: (id: string) => void;
 }
 
-const MessageContainer = ({ id, isLast }: MessageContainerProps) => {
-  const [message, setMessage] = useState<Message>({
-    type: "Q",
-    text: "default"
-  });
-  const chatIdList = useRecoilValue(messageIdsState);
-  const { addMessage, deleteMessage } = useChat();
-
-  useEffect(() => {
-    const data = window.sessionStorage.getItem(id.toString());
-    if (data)
-      setMessage(JSON.parse(data));
-  }, [id]);
-
-  const reload = async () => {
-    alert("reload");
-
-    const lastQuestionItem = window.sessionStorage.getItem(chatIdList[chatIdList.length-2]);
-    if (lastQuestionItem){
-      const lastQuestion = JSON.parse(lastQuestionItem).text;
-
-      deleteMessage(chatIdList[chatIdList.length-1]);//마지막 답 객체 삭제
-      //마지막 질문을 다시 넘겨서 답을 받아옴
-      await axios.post('/api/chat', window.sessionStorage.getItem(lastQuestion))
-        .then((res) => 
-          addMessage({
-            type: "A",
-            text: res.data
-          })
-        );
-      /*
-      //테스트(벡엔드X)
-      addMessage({
-        type: "A",
-        text: `This is the new answer for your question "${lastQuestion}"`
-      });
-      */
-    }
-    
-  }
+const MessageContainer = ({ id, isLast, onReload }: MessageContainerProps) => {
+  const message = useRecoilValue(messageItemState(id));
 
   const copyText = async (text: string) => {
     try {
@@ -85,25 +49,28 @@ const MessageContainer = ({ id, isLast }: MessageContainerProps) => {
 
   return (
     <Base isQuery={message.type==="Q"}>
-      <TextBox
-        text={message.text}
-      >
-        {
+      <TextBox dark={message.type==="Q"} text={message.text}>
+        {message.isLoading ? (
+          <ThreeDots 
+            height="1rem"
+            color='gray'
+          />
+        ) : (
           message.type==="A" && (
             <ButtonsContainer>
               {
-                isLast && (
-                  <Button onClick={reload}>
+                isLast && (/* 새로고침 */
+                  <Button onClick={() => onReload(id)}>
                     <AiOutlineReload />
                   </Button>
                 )
               }
-              <Button onClick={() => copyText(message.text)}>
+              <Button onClick={() => copyText(message.text!)}>
                 <FaRegCopy />
               </Button>
             </ButtonsContainer>
           )
-        }
+        )}
       </TextBox>
     </Base>
     

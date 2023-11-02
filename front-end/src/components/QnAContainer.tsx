@@ -1,33 +1,112 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import styled from '@emotion/styled';
-import { useRecoilValue } from 'recoil';
-import { AiOutlineReload } from 'react-icons/ai';
-import { FaRegCopy } from 'react-icons/fa';
-import TextBox from './TextBox';
-import { messageIdsState } from '../atoms/chatAtoms';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
+import axios from 'axios';
+import { messageIdListState, messageItemState } from '../atoms/chatAtoms';
 import MessageContainer from './MessageContainer';
+import QInput from './QInput';
+import { useChat } from '../hooks/useChat';
 
 const Base = styled.div`
   width: 100%;
   position: relative;
+  margin-top: auto;
+`;
+
+const ChatContainer = styled.div<{ paddingTop: number }>`
+  width: 100%;
   display: flex;
   flex-direction: column;
+  padding-top: ${({paddingTop}) => `calc(${paddingTop}px + 1rem)`};
+`;
+
+const InputContainer = styled.div`
+  width: 80%; //1200px;
+  position: fixed;
+  bottom: .5rem;
+  z-index: 3;
 `;
 
 interface QnAContainerProps {
+  pdTop: number;
 }
 
-const QnAContainer = ({  }: QnAContainerProps) => {
-  // const baseRef = useRef<HTMLDivElement>(null);
-  const chatIdList = useRecoilValue(messageIdsState);  
+const QnAContainer = ({ pdTop }: QnAContainerProps) => {
+  const messageIdList = useRecoilValue(messageIdListState);  
+  const chatRef = useRef<HTMLDivElement>(null);
+  const { addMessage, updateMessage } = useChat();
+
+
+  const onQInputHeightChange = (height: number) => {
+    if (chatRef.current) {
+      chatRef.current.style.paddingBottom = `${height}px`;
+    }
+  }
+
+  const submitQuestion = async (question: string) => {
+    addMessage(true, question);
+
+    const aid = addMessage(false);
+
+    await axios.get(`/api/chat?prompt=${question}`)
+      .then((res) => {
+        updateMessage(aid, res.data);
+      });
+    //테스트(백엔드X)
+    // setTimeout(() => {
+    //   updateMessage(aid, `Your question is "${question}".`);
+    // }, 2000);
+
+    chatRef.current?.scrollTo({left:0, top: 0, behavior: 'smooth'});
+  }
+
+  const reAskQuestion =  useRecoilCallback(
+    ({ snapshot, set }) => 
+      async (id: string) => {
+        //id는 기존 답변의 아이디
+        const prevAnswerItem = snapshot.getLoadable(messageItemState(id)).getValue();
+        set(messageItemState(id), {
+          ...prevAnswerItem,
+          text: "",
+          isLoading: true
+        })
+        const qIdx = messageIdList.findIndex(val => val===id) - 1;
+        const qid = messageIdList[qIdx];
+        const question = snapshot.getLoadable(messageItemState(qid)).getValue();
+        
+        await axios.get(`/api/chat?prompt=${question.text}`)
+          .then((res) => {
+            updateMessage(id, res.data);
+          });
+        //테스트(백엔드X)
+        // setTimeout(() => {
+        //   updateMessage(id, `Your question is "${question.text}" and This is new Answer.`);
+        // }, 2000)
+      }
+  );
 
   return (
     <Base>
-      {
-        chatIdList.map((id, idx) => (
-          <MessageContainer id={id} isLast={idx===chatIdList.length-1} key={id}/>
-        ))
-      }
+      <ChatContainer 
+        ref={chatRef} 
+        paddingTop={pdTop}
+      >
+        {
+          messageIdList.map((val, idx) => (
+            <MessageContainer 
+              id={val} key={val}
+              isLast={idx===messageIdList.length-1} 
+              onReload={reAskQuestion} />
+          ))
+        }
+      </ChatContainer>
+      <InputContainer>
+        <QInput 
+          onHeightChange={onQInputHeightChange}
+          onSubmit={submitQuestion}
+        />
+      </InputContainer>
+
     </Base>
   )
 }

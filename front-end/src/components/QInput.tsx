@@ -2,13 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 import axios from "axios";
 import { IoIosSend } from "react-icons/io";
-import useAutosizeTextArea from "../hooks/useAutoSizeTextArea";
 import { useChat } from "../hooks/useChat";
 
-const Container = styled.div`
+const Base = styled.div`
   display: flex;
   background-color: white;
-  border: 0.05rem solid black;
+  border: 0.1rem solid black;
   border-radius: 1rem;
   padding: 1rem 1.5rem;
   align-items: center;
@@ -21,6 +20,8 @@ const Input = styled.textarea`
   border: none;
   font-size: 1rem;
   resize: none;
+  font-family: 'Nanum Gothic', 'Orbit', sans-serif;
+
   &:focus {
     outline: none;
   }
@@ -28,47 +29,46 @@ const Input = styled.textarea`
 
 const Button = styled.div`
   font-size: 1.5rem;
+  height: 1.5rem;
+  display: flex;
   cursor: pointer;
 `;
 
-const QInput = () => {
+interface QInputProps {
+  onHeightChange: (height: number) => void;
+  onSubmit: (input: string) => void;
+}
+
+const QInput = ({ onHeightChange, onSubmit }: QInputProps) => {
   const [input, setInput] = useState<string>();
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const { addMessage } = useChat();
+  const baseRef = useRef<HTMLDivElement>(null);
 
-  useAutosizeTextArea(textAreaRef.current, input);
+  useEffect(() => {
+    if (textAreaRef.current && baseRef.current) {
+      //textArea 높이 자동 조절
+      textAreaRef.current.style.height = "0px";
+      const scrollHeight = textAreaRef.current.scrollHeight;
+      textAreaRef.current.style.height = scrollHeight + "px";
+
+      //높이 바뀔때마다 메세지컨테이너 패딩 조절
+      onHeightChange(baseRef.current.offsetHeight);
+    }
+  }, [textAreaRef, input, onHeightChange, baseRef]);
 
   const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target?.value);
   };
 
-  const sendQuestion = async () => {
+  const onClickSendBtn = () => {
     if (input) {
-      addMessage({
-        type: "Q",
-        text: input,
-      });
-
-      await axios.get(`/api/chat?prompt=${input}`).then((res) => {
-        addMessage({
-          type: "A",
-          text: res.data,
-        });
-      });
-      /*
-      //테스트(백엔드X)
-      addMessage({
-        type: "A",
-        text: `Your question is "${input}"`
-      });
-      */
+      onSubmit(input);
+      setInput("");// 입력칸 비우기
     }
-
-    setInput("");
-  };
+  }
 
   return (
-    <Container>
+    <Base ref={baseRef}>
       <Input
         ref={textAreaRef}
         placeholder="질문을 입력하세요"
@@ -76,10 +76,10 @@ const QInput = () => {
         onChange={onInputChange}
         value={input}
       />
-      <Button onClick={sendQuestion}>
+      <Button onClick={onClickSendBtn}>
         <IoIosSend />
       </Button>
-    </Container>
+    </Base>
   );
 };
 
