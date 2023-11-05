@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class ChromeDriverContext {
     private WebDriver driver;
     private static final Logger logger = LoggerFactory.getLogger(ChromeDriverContext.class);
-    public ServiceKeyConfig config = new ServiceKeyConfig();
+    public SystemConfig config = new SystemConfig();
     private String CHRHOME_DRIVER_PATH = config.getDriverPath();
 
     @Bean

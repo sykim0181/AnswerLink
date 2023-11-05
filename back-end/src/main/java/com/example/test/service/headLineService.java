@@ -1,47 +1,54 @@
 package com.example.test.service;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
+
+import org.joda.time.LocalDate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import com.example.test.config.ChromeDriverContext;
-import com.example.test.dto.TopicList;
-import com.example.test.dto.headLineResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.test.config.SystemConfig;
 
 @Service
 @Component
 public class headLineService {
 
-	
-	private static String bigKindsUrl = "https://www.bigkinds.or.kr";
-
-	public List<String> getHeadLineTitle() throws JsonMappingException, JsonProcessingException{
-		System.out.println("head line topic in");
-		ChromeDriverContext driverContext = new ChromeDriverContext();
-		WebDriver driver = driverContext.getChromeDriver();
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		driver.get(bigKindsUrl);	
-		//JSONArray jsonArray = new JSONArray();
-		String result = (String)js.executeScript("return JSON.stringify(trandReportList);");
-		ObjectMapper objectMapper = new ObjectMapper();
-
-		List<headLineResponse> topics = objectMapper.readValue(result, new TypeReference<List<headLineResponse>>() {});
-		List<String> topicList = new ArrayList<>();
-		for(headLineResponse topic : topics){
-			List<TopicList> topic_container = topic.getTopicList();
-			for(TopicList topic_text : topic_container){
-				topicList.add(topic_text.getTopicText());
-				System.out.println(topic_text.getTopicText());
+	SystemConfig systemConfig = new SystemConfig();
+	File file = new File(systemConfig.getStoragePath()+"/headLine_list.txt");
+	List<String> titleList = new ArrayList<>();
+	public List<String> getHeadLineTitle() throws IOException{
+		if(file.exists()){
+			//get titles from local file
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			LocalDate current_date = LocalDate.now();
+			String current_date_str = current_date.toString().replaceAll("-","");
+			String final_update_date = br.readLine();
+			System.out.println("file exist in");
+			if(Integer.parseInt(current_date_str)>Integer.parseInt(final_update_date)){
+				System.out.println("date compare in");
+				FetchTitle fetchTitle =  new FetchTitle();
+				titleList = fetchTitle.fetchTitle();
+			}else{
+				System.out.println("up to date");
+				while((line = br.readLine()) != null){
+					System.out.println(line);
+					//compare current date with final_update_date(first line)
+					titleList.add(line);
+				}
 			}
-			
+		}else{
+			//fetch titles by chrome driver
+			System.out.println("file not exist");
+			FetchTitle fetchTitle =  new FetchTitle();
+			titleList = fetchTitle.fetchTitle();
 		}
-		return topicList;
+		return titleList;
 	}
+
+	
 
 }
