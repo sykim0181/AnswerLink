@@ -1,55 +1,54 @@
 package com.example.test.service;
 
-import java.util.List;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
-//import org.apache.http.protocol.HTTP;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.joda.time.LocalDate;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-//import com.amazonaws.Response;
-
-import com.example.test.dto.ChatResponse;
-import com.example.test.dto.ListHeadLineResponse;
-import com.example.test.dto.headLineResponse;
-
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import com.example.test.config.SystemConfig;
 
 @Service
-@RequiredArgsConstructor
+@Component
 public class headLineService {
-	
-	public headLineResponse getHeadLine() {
-		System.out.println("head line response in");
-		URI uri = UriComponentsBuilder
-				.fromUriString("http://localhost:8000")
-				.path("/trend")
-				.encode()
-				.build()
-				.toUri();
-		
-		RestTemplate restTemplate = new RestTemplate();
-        System.out.println("head line response middle");
-        // HttpHeaders headers = new HttpHeaders();
-        // headers.setContentType(MediaType.APPLICATION_JSON);
-        // HttpEntity entity = new HttpEntity("parameters", headers);
-        // ResponseEntity response = restTemplate.exchange(uri, HttpMethod.GET, entity, ListHeadLineResponse.class);
-		ResponseEntity<headLineResponse> result = restTemplate.getForEntity(uri, headLineResponse.class);
-        headLineResponse response = restTemplate.getForObject(uri, headLineResponse.class);
-		System.out.println(result.getStatusCode());
-		System.out.println(result.getBody());
-		
-		return response;
-    
+
+	SystemConfig systemConfig = new SystemConfig();
+	File file = new File(systemConfig.getStoragePath()+"/headLine_list.txt");
+	List<String> titleList = new ArrayList<>();
+	public List<String> getHeadLineTitle() throws IOException{
+		if(file.exists()){
+			//get titles from local file
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			LocalDate current_date = LocalDate.now();
+			String current_date_str = current_date.toString().replaceAll("-","");
+			String final_update_date = br.readLine();
+			System.out.println("file exist in");
+			if(Integer.parseInt(current_date_str)>Integer.parseInt(final_update_date)){
+				System.out.println("date compare in");
+				FetchTitle fetchTitle =  new FetchTitle();
+				titleList = fetchTitle.fetchTitle();
+			}else{
+				System.out.println("up to date");
+				while((line = br.readLine()) != null){
+					System.out.println(line);
+					//compare current date with final_update_date(first line)
+					titleList.add(line);
+				}
+			}
+		}else{
+			//fetch titles by chrome driver
+			System.out.println("file not exist");
+			FetchTitle fetchTitle =  new FetchTitle();
+			titleList = fetchTitle.fetchTitle();
+		}
+		return titleList;
 	}
+
+	
 
 }
