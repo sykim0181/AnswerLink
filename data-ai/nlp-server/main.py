@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Response
 
 import json
 
@@ -46,10 +46,12 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
             "answers": answers
             }
     '''    
-    check_auth(serviceKey, Authorization)
+    # check_auth(serviceKey, Authorization)
+    original_query = query
+    query = query_augmentation(query)
     
     # get response from bareu api
-    res = tagger.tag(query)
+    res = tagger.tag(query[0] + ' ' + query[1] )
     # remove unnecessary pos
     pos = [i[0] for i in res.pos()
             if i[1] in ['SL', 'SH', 'SN',  
@@ -63,14 +65,15 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
                         ]
            ]
 
-    contexts = retrieve(query)
-    answers = generate_openai(query, contexts)
+    contexts = retrieve(' '.join(pos))
+    answers = generate_openai(original_query, contexts)
     
     return {
         "query": query,
         "contexts": contexts,
         "answers": answers,
         "pos": pos,
+        "original_query": original_query,
         }
 
 @app.get("/tag")
@@ -93,3 +96,26 @@ async def tag(query:str, serviceKey:str | None = None, Authorization: Annotated[
     verbs = res.verbs()
     
     return {"query": query, "serviceKey": serviceKey, 'tagged': res.pos(),'nouns': nowns, 'verbs': verbs}
+
+
+@app.get("/retrievre")
+async def retrievre(query:str, serviceKey:str | None = None, Authorization: Annotated[str | None, Header()] = None) -> dict:
+    check_auth(serviceKey, Authorization)
+    contexts = retrieve(query)
+    return {"contexts": contexts}
+
+@app.get("/api/chat")
+async def app_chat(resopnse:Response, prompt:str, serviceKey:str | None = None, Authorization: Annotated[str | None, Header()] = None):
+    resopnse.headers["Access-Control-Allow-Origin"] = "*"
+    resopnse.headers["content-type"] = "text/plain"
+    cont = await chat(prompt, serviceKey, Authorization)
+    return cont['answers']
+
+@app.get("/api/title")
+async def app_trend(resopnse:Response, serviceKey:str | None = None, Authorization: Annotated[str | None, Header()] = None):
+    resopnse.headers["Access-Control-Allow-Origin"] = "*"
+    resopnse.headers["content-type"] = "text/plain"
+    with open('trend_topics.json', 'r') as f:
+        trend = json.load(f)
+    titles = [l["topic_text"] for l in trend[0]["topic_list"]]
+    return titles

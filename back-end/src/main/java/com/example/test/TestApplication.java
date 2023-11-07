@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.example.test.config.ServiceKeyConfig;
 import com.example.test.dto.ListHeadLineResponse;
 import com.example.test.dto.headLineResponse;
 import com.example.test.service.QuestionAnswerService;
