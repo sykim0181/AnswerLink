@@ -52,7 +52,7 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
 
     await axios.get(`${server}/api/chat?prompt=${question}`)
       .then((res) => {
-        updateMessage(aid, res.data);
+        if (res.status === 200) updateMessage(aid, res.data);
       });
     //테스트(백엔드X)
     // const dummy_answer = "";
@@ -79,7 +79,7 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
         
         await axios.get(`${server}/api/chat?prompt=${question.text}`)
           .then((res) => {
-            updateMessage(id, res.data);
+            if (res.status === 200) updateMessage(id, res.data);
           });
         //테스트(백엔드X)
         // setTimeout(() => {
