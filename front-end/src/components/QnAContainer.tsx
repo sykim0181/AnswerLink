@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import styled from '@emotion/styled';
-import { useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilCallback, useRecoilValue } from 'recoil';
 import axios from 'axios';
 import { messageIdListState, messageItemState } from '../atoms/chatAtoms';
 import MessageContainer from './MessageContainer';
@@ -36,7 +36,7 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
   const messageIdList = useRecoilValue(messageIdListState);  
   const chatRef = useRef<HTMLDivElement>(null);
   const { addMessage, updateMessage } = useChat();
-  const [server, setServer] = useRecoilState(serverAtom); 
+  const server = useRecoilValue(serverAtom); 
 
 
   const onQInputHeightChange = (height: number) => {
@@ -45,7 +45,7 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
     }
   }
 
-  const submitQuestion = async (question: string) => {
+  const submitQuestion = useCallback(async (question: string) => {
     addMessage(true, question);
 
     const aid = addMessage(false);
@@ -61,7 +61,7 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
     // }, 2000);
 
     chatRef.current?.scrollTo({left:0, top: 0, behavior: 'smooth'});
-  }
+  }, [server, addMessage, updateMessage]);
 
   const reAskQuestion =  useRecoilCallback(
     ({ snapshot, set }) => 
