@@ -3,6 +3,8 @@ import styled from '@emotion/styled';
 import axios from 'axios';
 import ArrowContainer from './ArrowContainer';
 import TextBox from './TextBox';
+import { useRecoilValue } from 'recoil';
+import { serverAtom } from '../atoms/serverAtom';
 
 const Base = styled.div`
   display: flex;
@@ -25,6 +27,7 @@ const Headline = styled.div`
 const HeadlineContainer = () => {
   const [headlines, setHeadlines] = useState<string[]>([]);
   const [curIdx, setCurIdx] = useState(0);
+  const server = useRecoilValue(serverAtom); 
 
   const decreaseIdx = () => {
     if (curIdx > 0) 
@@ -49,7 +52,7 @@ const HeadlineContainer = () => {
       `오늘 오후 이태원 참사 1주기 추모제..."진상규명"`,
       `조규홍 장관 "미니·지방·국립대 의대 정원 확대"`
     ];
-    await axios.get("/api/title")
+    await axios.get(`${server}/api/title`)
     .then((res) => {
       if (res.status === 200) setHeadlines(res.data);
       else setHeadlines(dummy);
