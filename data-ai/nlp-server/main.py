@@ -47,9 +47,11 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
             }
     '''    
     check_auth(serviceKey, Authorization)
+    original_query = query
+    query = query_augmentation(query)
     
     # get response from bareu api
-    res = tagger.tag(query)
+    res = tagger.tag(query[0] + ' ' + query[1] )
     # remove unnecessary pos
     pos = [i[0] for i in res.pos()
             if i[1] in ['SL', 'SH', 'SN',  
@@ -63,14 +65,15 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
                         ]
            ]
 
-    contexts = retrieve(query)
-    answers = generate_openai(query, contexts)
+    contexts = retrieve(' '.join(pos))
+    answers = generate_openai(original_query, contexts)
     
     return {
         "query": query,
         "contexts": contexts,
         "answers": answers,
         "pos": pos,
+        "original_query": original_query,
         }
 
 @app.get("/tag")
