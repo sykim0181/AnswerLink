@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import axios from 'axios';
 import ArrowContainer from './ArrowContainer';
@@ -43,7 +43,7 @@ const HeadlineContainer = () => {
       setCurIdx(0);
   }
 
-  const setHeadline = async () => {
+  const setHeadline = useCallback(async () => {
     const dummy =  [
       "이스라엘 지상전 확대에 국제유가 2.8% 상승",
       "바이든·시진핑 다음달 정상회당 개최 합의",
@@ -57,13 +57,12 @@ const HeadlineContainer = () => {
       if (res.status === 200) setHeadlines(res.data);
       else setHeadlines(dummy);
     });
-
-  }
+  }, [server]);
 
   useEffect(() => {
     setHeadline();
-  }, []);
-  
+  }, [setHeadline]);
+
   return (
     <Base>
       <TextBox nowrap dark text="최신 이슈" />
