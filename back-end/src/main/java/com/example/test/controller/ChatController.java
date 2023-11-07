@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.example.test.config.ServiceKeyConfig;
 import com.example.test.dto.ChatRequest;
 import com.example.test.dto.ChatResponse;
 import com.example.test.service.QuestionAnswerService;
