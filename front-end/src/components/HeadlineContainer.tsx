@@ -41,11 +41,7 @@ const HeadlineContainer = () => {
   }
 
   const setHeadline = async () => {
-    // await axios.get("/api/title")
-    // .then((res) => {
-    //   setHeadlines(res.data);
-    // });
-    const sample =  [
+    const dummy =  [
       "이스라엘 지상전 확대에 국제유가 2.8% 상승",
       "바이든·시진핑 다음달 정상회당 개최 합의",
       "전청조 투자사기, 남현희 공모 의혹...경찰에 진정 접수",
@@ -53,7 +49,12 @@ const HeadlineContainer = () => {
       `오늘 오후 이태원 참사 1주기 추모제..."진상규명"`,
       `조규홍 장관 "미니·지방·국립대 의대 정원 확대"`
     ];
-    setHeadlines(sample);
+    await axios.get("/api/title")
+    .then((res) => {
+      if (res.status === 200) setHeadlines(res.data);
+      else setHeadlines(dummy);
+    });
+
   }
 
   useEffect(() => {
