@@ -52,10 +52,17 @@ const HeadlineContainer = () => {
       `오늘 오후 이태원 참사 1주기 추모제..."진상규명"`,
       `조규홍 장관 "미니·지방·국립대 의대 정원 확대"`
     ];
+
     await axios.get(`${server}/api/title`)
     .then((res) => {
-      if (res.status === 200) setHeadlines(res.data);
-      else setHeadlines(dummy);
+      if (res.status === 200){
+        setHeadlines(res.data);
+      } else {
+        setHeadlines(dummy);
+      }
+    })
+    .catch((err) => {
+      setHeadlines(dummy);
     });
   }, [server]);
 
