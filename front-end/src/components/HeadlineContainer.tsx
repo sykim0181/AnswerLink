@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import axios from 'axios';
 import ArrowContainer from './ArrowContainer';
@@ -29,6 +29,8 @@ const HeadlineContainer = () => {
   const [curIdx, setCurIdx] = useState(0);
   const server = useRecoilValue(serverAtom); 
 
+  const timerRef = useRef<NodeJS.Timer>();
+
   const decreaseIdx = () => {
     if (curIdx > 0) 
       setCurIdx(curIdx - 1);
@@ -46,22 +48,37 @@ const HeadlineContainer = () => {
   const setHeadline = useCallback(async () => {
     const dummy =  [
       "이스라엘 지상전 확대에 국제유가 2.8% 상승",
-      "바이든·시진핑 다음달 정상회당 개최 합의",
+      "바이든·시진핑 다음달 정상회담 개최 합의",
       "전청조 투자사기, 남현희 공모 의혹...경찰에 진정 접수",
       "럼피스킨병 52건으로 늘어...의심 신고 6건 검사 중",
       `오늘 오후 이태원 참사 1주기 추모제..."진상규명"`,
       `조규홍 장관 "미니·지방·국립대 의대 정원 확대"`
     ];
+
     await axios.get(`${server}/api/title`)
     .then((res) => {
-      if (res.status === 200) setHeadlines(res.data);
-      else setHeadlines(dummy);
+      if (res.status === 200){
+        setHeadlines(res.data);
+      } else {
+        setHeadlines(dummy);
+      }
+    })
+    .catch((err) => {
+      setHeadlines(dummy);
     });
   }, [server]);
 
   useEffect(() => {
     setHeadline();
   }, [setHeadline]);
+
+  useEffect(() => {
+    timerRef.current = setInterval(increaseIdx, 3000);
+
+    return () => {
+      clearInterval(timerRef.current)
+    }
+  })
 
   return (
     <Base>

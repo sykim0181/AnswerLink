@@ -53,12 +53,14 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
     await axios.get(`${server}/api/chat?prompt=${question}`)
       .then((res) => {
         if (res.status === 200) updateMessage(aid, res.data);
+        else console.log(res.status)
+      })
+      .catch((err) => {//서버없을때(테스트)
+        console.log(err);
+        setTimeout(() => {
+          updateMessage(aid, `Your question is "${question}".`);
+        }, 2000);
       });
-    //테스트(백엔드X)
-    // const dummy_answer = "";
-    // setTimeout(() => {
-    //   updateMessage(aid, `Your question is "${question}".`);
-    // }, 2000);
 
     chatRef.current?.scrollTo({left:0, top: 0, behavior: 'smooth'});
   }, [server, addMessage, updateMessage]);
@@ -80,11 +82,14 @@ const QnAContainer = ({ pdTop }: QnAContainerProps) => {
         await axios.get(`${server}/api/chat?prompt=${question.text}`)
           .then((res) => {
             if (res.status === 200) updateMessage(id, res.data);
-          });
-        //테스트(백엔드X)
-        // setTimeout(() => {
-        //   updateMessage(id, `Your question is "${question.text}" and This is new Answer.`);
-        // }, 2000)
+            else console.log(res.status)
+          })
+          .catch((err) => {//서버없을때(테스트)
+            console.log(err);
+            setTimeout(() => {
+              updateMessage(id, `Your question is "${question}".`);
+            }, 2000);
+          })
       }
   );
 
