@@ -7,6 +7,8 @@ import { AiOutlineReload } from 'react-icons/ai';
 import { FaRegCopy } from 'react-icons/fa';
 import { messageItemState } from '../atoms/chatAtoms';
 import TextBox from './TextBox';
+import ReactMarkdown from 'react-markdown';
+
 
 const Base = styled.div<{ isQuery: boolean }>`
   margin: ${({ isQuery }) => isQuery ? "0 0 0 auto" : "0 auto 0 0"};
@@ -49,7 +51,8 @@ const MessageContainer = ({ id, isLast, onReload }: MessageContainerProps) => {
 
   return (
     <Base isQuery={message.type==="Q"}>
-      <TextBox dark={message.type==="Q"} text={message.text}>
+      <TextBox dark={message.type==="Q"} >
+        <ReactMarkdown>{message.text}</ReactMarkdown>
         {message.isLoading ? (
           <ThreeDots 
             height="1rem"
