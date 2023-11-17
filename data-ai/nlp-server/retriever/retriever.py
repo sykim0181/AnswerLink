@@ -32,7 +32,7 @@ Generate keywords that are semantically similar or identical to the keywords.
 Create a few questions with the same answer.
 Summarize the questions you generated.
 Generate answers to the questions you generated.
-
+Record the correct answer as an empty string if it is below the  knowledge cut off or unknown.
 
 Please provide your answers in the following format
 ``` JSON
@@ -42,7 +42,7 @@ Please provide your answers in the following format
 }}
 ```
 
-한국어로 생성해줘
+Please answer to Korean 한국어로 생성.
 Query: {query}
 JSON:
 """
@@ -50,7 +50,7 @@ JSON:
 def query_augmentation(query: str):
     
     res = openai.ChatCompletion.create(
-            model='gpt-3.5-turbo-1106',
+            model='gpt-4-1106-preview',
             temperature=0,
             seed=1234,
             response_format={"type": 'json_object'},

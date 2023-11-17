@@ -46,12 +46,11 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
             "answers": answers
             }
     '''    
-    # check_auth(serviceKey, Authorization)
+    check_auth(serviceKey, Authorization)
     original_query = query
     query = query_augmentation(query)
-    
     # get response from bareu api
-    res = tagger.tag(query[0] + ' ' + query[1] )
+    res = tagger.tag(query[0] + ' ' + query[1])
     # remove unnecessary pos
     pos = [i[0] for i in res.pos()
             if i[1] in ['SL', 'SH', 'SN',  
@@ -60,11 +59,11 @@ async def chat(query:str, serviceKey:str | None = None, Authorization: Annotated
                         # NNP: 고유명사 # NNG: 일반명사 # NNB: 의존명사 # NR: 수사
                         'VV', 'VA', 'VX', 'VCP', 'VCN',
                         # VV: 동사 # VA: 형용사 # VX: 보조용언 # VCP: 긍정지정사 # VCN: 부정지정사
-                        'XR'
-                        # XR: 어근
+                        'XR', 'XPN'
+                        # XR: 어근 # XPN: 체언접두사
                         ]
            ]
-
+    
     contexts = retrieve(' '.join(pos))
     answers = generate_openai(original_query, contexts)
     
@@ -119,3 +118,4 @@ async def app_trend(resopnse:Response, serviceKey:str | None = None, Authorizati
         trend = json.load(f)
     titles = [l["topic_text"] for l in trend[0]["topic_list"]]
     return titles
+    
